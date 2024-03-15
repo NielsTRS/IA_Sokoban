@@ -31,10 +31,10 @@ import Structures.Sequence;
 
 import java.util.Random;
 
-class IATeleportations extends IA {
+class IAAssistance extends IA {
 	Random r;
 
-	public IATeleportations() {
+	public IAAssistance() {
 		r = new Random();
 	}
 
