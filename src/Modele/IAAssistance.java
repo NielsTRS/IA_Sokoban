@@ -32,41 +32,44 @@ import Structures.Sequence;
 import java.util.Random;
 
 class IAAssistance extends IA {
-	Random r;
+    final static int ROUGE = 0xCC0000;
+    Random r;
 
-	public IAAssistance() {
-		r = new Random();
-	}
+    public IAAssistance() {
+        r = new Random();
+    }
 
-	@Override
-	public Sequence<Coup> joue() {
-		Sequence<Coup> resultat = Configuration.nouvelleSequence();
-		int pousseurL = niveau.lignePousseur();
-		int pousseurC = niveau.colonnePousseur();
+    @Override
+    public Sequence<Coup> joue() {
+        Sequence<Coup> resultat = Configuration.nouvelleSequence();
+        int pousseurL = niveau.lignePousseur();
+        int pousseurC = niveau.colonnePousseur();
 
-		// Ici, a titre d'exemple, on peut construire une séquence de coups
-		// qui sera jouée par l'AnimationJeuAutomatique
-		int nb = r.nextInt(5)+1;
-		Configuration.info("Entrée dans la méthode de jeu de l'IA");
-		Configuration.info("Construction d'une séquence de " + nb + " coups");
-		for (int i = 0; i < nb; i++) {
-			// Mouvement du pousseur
-			Coup coup = new Coup();
-			boolean libre = false;
-			while (!libre) {
-				int nouveauL = r.nextInt(niveau.lignes());
-				int nouveauC = r.nextInt(niveau.colonnes());
-				if (niveau.estOccupable(nouveauL, nouveauC)) {
-					Configuration.info("Téléportation en (" + nouveauL + ", " + nouveauC + ") !");
-					coup.deplacementPousseur(pousseurL, pousseurC, nouveauL, nouveauC);
-					resultat.insereQueue(coup);
-					pousseurL = nouveauL;
-					pousseurC = nouveauC;
-					libre = true;
-				}
-			}
-		}
-		Configuration.info("Sortie de la méthode de jeu de l'IA");
-		return resultat;
-	}
+        // Ici, a titre d'exemple, on peut construire une séquence de coups
+        // qui sera jouée par l'AnimationJeuAutomatique
+        int nb = r.nextInt(5) + 1;
+        Configuration.info("Entrée dans la méthode de jeu de l'IA");
+        Configuration.info("Construction d'une séquence de " + nb + " coups");
+        for (int i = 0; i < nb; i++) {
+            // Mouvement du pousseur
+            Coup coup = new Coup();
+            boolean libre = false;
+            while (!libre) {
+                int nouveauL = r.nextInt(niveau.lignes());
+                int nouveauC = r.nextInt(niveau.colonnes());
+                coup.ajouteMarque(pousseurL, pousseurC, 0);
+                if (niveau.estOccupable(nouveauL, nouveauC)) {
+                    Configuration.info("Téléportation en (" + nouveauL + ", " + nouveauC + ") !");
+                    coup.ajouteMarque(nouveauL, nouveauC, ROUGE);
+                    coup.deplacementPousseur(pousseurL, pousseurC, nouveauL, nouveauC);
+                    resultat.insereQueue(coup);
+                    pousseurL = nouveauL;
+                    pousseurC = nouveauC;
+                    libre = true;
+                }
+            }
+        }
+        Configuration.info("Sortie de la méthode de jeu de l'IA");
+        return resultat;
+    }
 }
