@@ -35,7 +35,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 public class Configuration {
-	static final int silence = 0;
+	static final int silence = 1;
 	public static final String typeInterface = "Graphique";
 	static final String typeSequences = "Liste";
 	public static final double vitesseAnimations = 0.15;

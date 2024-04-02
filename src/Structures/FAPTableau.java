@@ -52,4 +52,28 @@ public class FAPTableau<E extends Comparable<E>> extends FAP<E> {
 		s.elements[courant] = element;
 		s.taille++;
 	}
+
+	/* @SuppressWarnings("unchecked")
+	public boolean existeCouple(int i, int j) {
+	    Couple coupleRecherche = new Couple(i, j, 0);
+
+	    // Recherche dichotomique
+	    int debut = s.debut;
+	    int fin = (s.debut + s.taille - 1) % s.elements.length;
+
+	    while (debut <= fin) {
+	        int milieu = (debut + fin) / 2;
+	        int comparaison = coupleRecherche.compareTo((E) s.elements[milieu]);
+	        if (comparaison == 0) {
+	            // Le couple a été trouvé
+	            return true;
+	        } else if (comparaison < 0) {
+	            fin = milieu - 1;
+	        } else {
+	            debut = milieu + 1;
+	        }
+	    }
+	    // Le couple n'a pas été trouvé
+	    return false;
+	} */
 }

@@ -29,6 +29,10 @@ package Modele;
 import Global.Configuration;
 import Structures.Iterateur;
 
+import Structures.CoupleFAP;
+import java.util.List;
+import java.util.ArrayList;
+
 public class Niveau implements Cloneable {
 	static final int VIDE = 0;
 	static final int MUR = 1;
@@ -42,7 +46,7 @@ public class Niveau implements Cloneable {
 	int nbButs;
 	int nbCaissesSurBut;
 
-	Niveau() {
+	public Niveau() {
 		cases = new int[1][1];
 		l = c = 1;
 		pousseurL = pousseurC = -1;
@@ -218,7 +222,7 @@ public class Niveau implements Cloneable {
 	}
 
 	public boolean estOccupable(int l, int c) {
-		return (cases[l][c] & (MUR | CAISSE | POUSSEUR)) == 0;
+		return (cases[l][c] & (MUR | CAISSE)) == 0;
 	}
 
 	public boolean estTermine() {
@@ -261,4 +265,19 @@ public class Niveau implements Cloneable {
 	public void fixerMarque(int m, int i, int j) {
 		cases[i][j] = (cases[i][j] & 0xFF) | (m << 8);
 	}
+
+	public List<CoupleFAP> voisins(int u, int v) {
+        List<CoupleFAP> voisins = new ArrayList<>();
+
+		if (u >= 0 && u < lignes() && v+1 >= 0 && v+1 < colonnes())
+        	voisins.add(new CoupleFAP(u, v+1, 1));
+		if (u+1 >= 0 && u+1 < lignes() && v+1 >= 0 && v+1 < colonnes())	
+        	voisins.add(new CoupleFAP(u+1, v, 1));
+		if (u >= 0 && u < lignes() && v-1 >= 0 && v-1 < colonnes())
+			voisins.add(new CoupleFAP(u, v-1, 1));
+		if (u-1 >= 0 && u-1 < lignes() && v >= 0 && v < colonnes())
+        	voisins.add(new CoupleFAP(u-1, v, 1));
+			
+        return voisins;
+    }
 }

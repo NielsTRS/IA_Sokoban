@@ -57,6 +57,8 @@ class IATeleportations extends IA {
 				int nouveauL = r.nextInt(niveau.lignes());
 				int nouveauC = r.nextInt(niveau.colonnes());
 				if (niveau.estOccupable(nouveauL, nouveauC)) {
+					System.out.println("x" + nouveauL);
+					System.out.println("y" + nouveauC);
 					Configuration.info("Téléportation en (" + nouveauL + ", " + nouveauC + ") !");
 					coup.deplacementPousseur(pousseurL, pousseurC, nouveauL, nouveauC);
 					resultat.insereQueue(coup);

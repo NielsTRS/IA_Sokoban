@@ -86,4 +86,8 @@ public class Coup {
 	public int dirPousseurC() {
 		return dirPousseurC;
 	}
+
+	public String toString () {
+		return "("+ dirPousseurL +","+ dirPousseurC +")"+ pousseur + caisse;
+	}
 }
