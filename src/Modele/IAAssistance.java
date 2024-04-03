@@ -5,11 +5,12 @@ import Structures.Sequence;
 import Structures.Astar;
 import Structures.Case;
 
-import java.util.Random;
 import java.util.List;
 import java.util.ArrayList;
 
 class IAAssistance extends IA {
+    final static int VERT = 0x00CC00;
+    final static int MARRON = 0xBB7755;
 
     @Override
     public Sequence<Coup> joue() {
@@ -42,36 +43,65 @@ class IAAssistance extends IA {
         Case caseOptimale = Trouver_case_pousseur(niveau, caisse, but);
 
         if (caseOptimale == null) {
-			System.err.println("Pas de solution possible, au suivant.");
+            System.err.println("Pas de solution possible, au suivant.");
             /* System.exit(1); */
             return null;
         }
 
-		Astar astar_pousseurCase = new Astar();
+        Astar astar_pousseurCase = new Astar();
         Astar.AstarResult astar_pousseur = astar_pousseurCase.astar(niveau, pousseurL, pousseurC, caseOptimale.x, caseOptimale.y);
 
-		pousseurL = caseOptimale.x;
-        pousseurC = caseOptimale.y;
+        Case copieOptimale = new Case(caseOptimale.x, caseOptimale.y);
 
         // Déplacer le pousseur jusqu'à la case optimale à côté de la caisse
         Case[][] pred_pousseur = astar_pousseur.pred;
         Sequence<Case> seq = Configuration.nouvelleSequence();
-        while (pred_pousseur[caseOptimale.x][caseOptimale.y] != null) {
-            Case nouveau = pred_pousseur[caseOptimale.x][caseOptimale.y];
-            Case dir = new Case(caseOptimale.x - nouveau.x, caseOptimale.y - nouveau.y);
+        while (pred_pousseur[copieOptimale.x][copieOptimale.y] != null) {
+            Case nouveau = pred_pousseur[copieOptimale.x][copieOptimale.y];
+            Case dir = new Case(copieOptimale.x - nouveau.x, copieOptimale.y - nouveau.y);
             seq.insereTete(dir);
-            caseOptimale.x = nouveau.x;
-            caseOptimale.y = nouveau.y;
+            copieOptimale.x = nouveau.x;
+            copieOptimale.y = nouveau.y;
         }
 
         while (!seq.estVide()) {
             Coup coup;
             Case nouv = seq.extraitTete();
+
+            int nouveauL = pousseurL + nouv.x;
+            int nouveauC = pousseurC + nouv.y;
+
             coup = niveau.deplace(nouv.x, nouv.y);
+
+            nouveauL += nouv.x;
+            nouveauC += nouv.y;
+
+            // Ajout des marques
+            for (int l = 0; l < niveau.lignes(); l++) {
+                for (int c = 0; c < niveau.colonnes(); c++) {
+                    int marque = niveau.marque(l, c);
+                    if (marque == VERT) {
+                        coup.ajouteMarque(l, c, 0);
+                    }
+                }
+            }
+            coup.ajouteMarque(pousseurL, pousseurC, MARRON);
+            while (niveau.estOccupable(nouveauL, nouveauC)) {
+                int marque = niveau.marque(nouveauL, nouveauC);
+                if (marque == 0) {
+                    coup.ajouteMarque(nouveauL, nouveauC, VERT);
+                }
+                nouveauL += nouv.x;
+                nouveauC += nouv.y;
+            }
+
             resultat.insereQueue(coup);
+            pousseurL = niveau.lignePousseur();
+            pousseurC = niveau.colonnePousseur();
         }
 
-        Coup coup = niveau.deplace(caisse.x - pousseurL, caisse.y - pousseurC);
+        Coup coup = niveau.deplace(caisse.x - caseOptimale.x, caisse.y - caseOptimale.y);
+        coup.ajouteMarque(pousseurL, pousseurC, MARRON);
         resultat.insereQueue(coup);
 
         Configuration.info("Sortie de la méthode de jeu de l'IA");
@@ -106,22 +136,22 @@ class IAAssistance extends IA {
         return distance != Integer.MAX_VALUE;
     }
 
-	public Case caseOpposee(Case casePousseur, Case caisse) {
-		if (casePousseur.x == caisse.est().x && casePousseur.y == caisse.est().y) {
-			return new Case(caisse.ouest().x, caisse.ouest().y);
-		} else if (casePousseur.x == caisse.ouest().x && casePousseur.y == caisse.ouest().y) {
-			return new Case(caisse.est().x, caisse.est().y);
-		} else if (casePousseur.x == caisse.sud().x && casePousseur.y == caisse.sud().y) {
-			return new Case(caisse.nord().x, caisse.nord().y);
-		} else { //case = au nord de la caisse
-			return new Case(caisse.sud().x, caisse.sud().y);
-		}
-	}
+    public Case caseOpposee(Case casePousseur, Case caisse) {
+        if (casePousseur.x == caisse.est().x && casePousseur.y == caisse.est().y) {
+            return new Case(caisse.ouest().x, caisse.ouest().y);
+        } else if (casePousseur.x == caisse.ouest().x && casePousseur.y == caisse.ouest().y) {
+            return new Case(caisse.est().x, caisse.est().y);
+        } else if (casePousseur.x == caisse.sud().x && casePousseur.y == caisse.sud().y) {
+            return new Case(caisse.nord().x, caisse.nord().y);
+        } else { //case = au nord de la caisse
+            return new Case(caisse.sud().x, caisse.sud().y);
+        }
+    }
 
     public boolean est_case_opposee_libre(Case casePousseur, Case caisse) {
-    	Case caseOpposee = caseOpposee(casePousseur, caisse);
-    	return niveau.estOccupable(caseOpposee.x, caseOpposee.y);
-	}
+        Case caseOpposee = caseOpposee(casePousseur, caisse);
+        return niveau.estOccupable(caseOpposee.x, caseOpposee.y);
+    }
 
     public boolean ne_bloque_pas(Case casePousseur, Case caisse) {
         if (casePousseur.x == caisse.est().x && casePousseur.y == caisse.est().y) {
@@ -146,14 +176,14 @@ class IAAssistance extends IA {
     public Case Trouver_case_pousseur(Niveau niveau, Case caisse, Case but) {
         int min = Integer.MAX_VALUE;
         Case caseOptimale = null;
-		int pousseurL = niveau.lignePousseur();
+        int pousseurL = niveau.lignePousseur();
         int pousseurC = niveau.colonnePousseur();
         List<Case> casesLibres = cases_libres_autour_caisse(caisse);
 
         for (Case casePousseur : casesLibres) {
             if (estAccessiblePousseur(niveau, casePousseur, pousseurL, pousseurC) && est_case_opposee_libre(casePousseur, caisse) && ne_bloque_pas(casePousseur, caisse)) {
                 Astar astar_caseCaisse = new Astar();
-                Astar.AstarResult astar_case = astar_caseCaisse.astar(niveau, caseOpposee(casePousseur,caisse).x, caseOpposee(casePousseur,caisse).y, but.x, but.y);
+                Astar.AstarResult astar_case = astar_caseCaisse.astar(niveau, caseOpposee(casePousseur, caisse).x, caseOpposee(casePousseur, caisse).y, but.x, but.y);
                 int distance = astar_case.distance;
 
                 if (min >= distance) {
