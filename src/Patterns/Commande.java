@@ -1,3 +1,4 @@
+package Patterns;
 /*
  * Sokoban - Encore une nouvelle version (à but pédagogique) du célèbre jeu
  * Copyright (C) 2018 Guillaume Huard
@@ -25,19 +26,7 @@
  *          38401 Saint Martin d'Hères
  */
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
-public class EcouteurDeSouris extends MouseAdapter {
-	AireDeDessin aire;
-
-	EcouteurDeSouris(AireDeDessin a) {
-		aire = a;
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-		aire.fixePosition(e.getX(), e.getY());
-		aire.repaint();
-	}
+public interface Commande {
+	void execute();
+	void desexecute();
 }

@@ -1,3 +1,4 @@
+package Vue;
 /*
  * Sokoban - Encore une nouvelle version (à but pédagogique) du célèbre jeu
  * Copyright (C) 2018 Guillaume Huard
@@ -25,18 +26,18 @@
  *          38401 Saint Martin d'Hères
  */
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class EcouteurDeSourisSolution extends MouseAdapter {
-	AireDeDessinSolution aire;
+public class AdaptateurProchain implements ActionListener {
+	CollecteurEvenements control;
 
-	EcouteurDeSourisSolution(AireDeDessinSolution a) {
-		aire = a;
+	AdaptateurProchain(CollecteurEvenements c) {
+		control = c;
 	}
 
 	@Override
-	public void mousePressed(MouseEvent e) {
-		new TranslationPousseur(aire, e.getX(), e.getY());
+	public void actionPerformed(ActionEvent e) {
+		control.toucheClavier("Next");
 	}
 }

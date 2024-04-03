@@ -27,33 +27,49 @@ package Modele;
  */
 
 public class Mouvement {
-	int depuisL, depuisC, versL, versC;
+	int [] ligne, colonne;
+	int direction;
+	public static final int AVANT = 1;
+	public static final int ARRIERE = 0;
 
 	Mouvement(int dL, int dC, int vL, int vC) {
-		depuisL = dL;
-		depuisC = dC;
-		versL = vL;
-		versC = vC;
+		ligne = new int[2];
+		colonne = new int[2];
+		ligne[0] = dL;
+		colonne[0] = dC;
+		ligne[1] = vL;
+		colonne[1] = vC;
+		direction = AVANT;
 	}
 
 	public int depuisL() {
-		return depuisL;
+		return ligne[1-direction];
 	}
 
 	public int depuisC() {
-		return depuisC;
+		return colonne[1-direction];
 	}
 
 	public int versL() {
-		return versL;
+		return ligne[direction];
 	}
 
 	public int versC() {
-		return versC;
+		return colonne[direction];
+	}
+
+	public void fixeDirection(int dir) {
+		direction = dir;
+	}
+
+	int decompte() {
+		return direction*2 - 1;
 	}
 
 	@Override
 	public String toString() {
-		return "(" + depuisL + ", " + depuisC + ") -> (" + versL + ", " + versC + ")";
+		return "(" + ligne[0] + ", " + colonne[0] + ") " +
+				((direction > 0) ? "->":"<-") +
+				" (" + ligne[1] + ", " + colonne[1] + ")";
 	}
 }

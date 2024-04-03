@@ -67,6 +67,10 @@ public class InterfaceTextuelle implements InterfaceUtilisateur, Observateur {
 	public void metAJourDirection(int dL, int dC) { }
 	@Override
 	public void decale(int versL, int versC, double dL, double dC) { }
+	@Override
+	public void changeEtatIA(boolean b) { }
+	@Override
+	public void changeEtatAnimations(boolean b) { }
 
 	@Override
 	public void miseAJour() {

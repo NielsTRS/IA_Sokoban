@@ -43,9 +43,9 @@ class IAAssistance extends IA {
         Case caseOptimale = Trouver_case_pousseur(niveau, caisse, but);
 
         if (caseOptimale == null) {
-            System.err.println("Pas de solution possible, au suivant.");
-            /* System.exit(1); */
-            return null;
+            Coup coup = niveau.deplace(0,0);
+            resultat.insereQueue(coup);
+            return resultat;
         }
 
         Astar astar_pousseurCase = new Astar();
@@ -65,16 +65,16 @@ class IAAssistance extends IA {
         }
 
         while (!seq.estVide()) {
-            Coup coup;
+            Coup coup = null;
             Case nouv = seq.extraitTete();
 
             int nouveauL = pousseurL + nouv.x;
             int nouveauC = pousseurC + nouv.y;
-
+        
             coup = niveau.deplace(nouv.x, nouv.y);
-
+    
             nouveauL += nouv.x;
-            nouveauC += nouv.y;
+		    nouveauC += nouv.y;
 
             // Ajout des marques
             for (int l = 0; l < niveau.lignes(); l++) {
@@ -99,7 +99,7 @@ class IAAssistance extends IA {
             pousseurL = niveau.lignePousseur();
             pousseurC = niveau.colonnePousseur();
         }
-
+        
         Coup coup = niveau.deplace(caisse.x - caseOptimale.x, caisse.y - caseOptimale.y);
         coup.ajouteMarque(pousseurL, pousseurC, MARRON);
         resultat.insereQueue(coup);

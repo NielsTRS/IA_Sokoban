@@ -30,6 +30,7 @@ import Global.Configuration;
 import Modele.Coup;
 import Modele.IA;
 import Modele.Jeu;
+import Modele.Mouvement;
 import Structures.Iterateur;
 import Structures.Sequence;
 import Vue.CollecteurEvenements;
@@ -72,18 +73,37 @@ public class ControleurMediateur implements CollecteurEvenements {
 			deplace(dL, dC);
 	}
 
+	void repercute(Coup cp, int direction) {
+		vue.metAJourDirection(cp.dirPousseurL(), cp.dirPousseurC());
+		if (animationsActives) {
+			mouvement = new AnimationCoup(cp, vitesseAnimations, this);
+			animations.insereQueue(mouvement);
+		} else
+			testFin();
+	}
+
 	void joue(Coup cp) {
 		if (cp != null) {
 			jeu.joue(cp);
-			vue.metAJourDirection(cp.dirPousseurL(), cp.dirPousseurC());
-			if (animationsActives) {
-				mouvement = new AnimationCoup(cp, vitesseAnimations, this);
-				animations.insereQueue(mouvement);
-			} else
-				testFin();
+			repercute(cp, Mouvement.AVANT);
 		} else {
 			Configuration.alerte("Coup null fourni, probablement un bug dans l'IA");
 		}
+	}
+
+	void annule() {
+		if ((mouvement == null) && jeu.peutAnnuler()) {
+			Coup cp = jeu.annuler();
+			repercute(cp, Mouvement.ARRIERE);
+		}
+	}
+
+	void refait() {
+		if ((mouvement == null) && jeu.peutRefaire()) {
+			Coup cp = jeu.refaire();
+			repercute(cp, Mouvement.AVANT);
+		}
+
 	}
 
 	void deplace(int dL, int dC) {
@@ -118,6 +138,12 @@ public class ControleurMediateur implements CollecteurEvenements {
 			case "Down":
 				deplace(1, 0);
 				break;
+			case "Undo":
+				annule();
+				break;
+			case "Redo":
+				refait();
+				break;
 			case "Quit":
 				System.exit(0);
 				break;
@@ -127,12 +153,20 @@ public class ControleurMediateur implements CollecteurEvenements {
 			case "IA":
 				basculeIA();
 				break;
+			case "Next":
+				prochain();
+				break;
 			case "Full":
 				vue.toggleFullscreen();
 				break;
 			default:
 				System.out.println("Touche inconnue : " + touche);
 		}
+	}
+
+	public void prochain() {
+		jeu.prochainNiveau();
+		testFin();
 	}
 
 	public void ajouteInterfaceUtilisateur(InterfaceUtilisateur v) {
@@ -145,6 +179,7 @@ public class ControleurMediateur implements CollecteurEvenements {
 		if (!animationsSupportees) {
 			animationsSupportees = true;
 			animationsActives = Configuration.animations;
+			vue.changeEtatAnimations(animationsActives);
 		}
 		// On traite l'IA séparément pour pouvoir l'activer même si les animations
 		// "esthétiques" sont désactivées
@@ -178,6 +213,7 @@ public class ControleurMediateur implements CollecteurEvenements {
 	public void basculeAnimations() {
 		if (animationsSupportees && (mouvement == null))
 			animationsActives = !animationsActives;
+			vue.changeEtatAnimations(animationsActives);
 	}
 
 	public void basculeIA() {
@@ -191,6 +227,7 @@ public class ControleurMediateur implements CollecteurEvenements {
 			}
 			if (joueurAutomatique != null)
 				IAActive = !IAActive;
+				vue.changeEtatIA(IAActive);
 		}
 	}
 }

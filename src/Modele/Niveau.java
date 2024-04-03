@@ -33,7 +33,7 @@ import Structures.CoupleFAP;
 import java.util.List;
 import java.util.ArrayList;
 
-public class Niveau implements Cloneable {
+public class Niveau extends Historique<Coup> implements Cloneable {
 	static final int VIDE = 0;
 	static final int MUR = 1;
 	static final int POUSSEUR = 2;
@@ -45,8 +45,9 @@ public class Niveau implements Cloneable {
 	int pousseurL, pousseurC;
 	int nbButs;
 	int nbCaissesSurBut;
+	int nbPas, nbPoussees;
 
-	public Niveau() {
+	Niveau() {
 		cases = new int[1][1];
 		l = c = 1;
 		pousseurL = pousseurC = -1;
@@ -118,6 +119,39 @@ public class Niveau implements Cloneable {
 		return cases[i][j] & (POUSSEUR | CAISSE);
 	}
 
+	int decompteMouvement(Mouvement m) {
+		if (m != null)
+			return m.decompte();
+		else
+			return 0;
+	}
+
+	void decomptes(Coup cp) {
+		nbPas += decompteMouvement(cp.pousseur());
+		nbPoussees += decompteMouvement(cp.caisse());
+	}
+
+	@Override
+	public void faire(Coup cp) {
+		cp.fixeNiveau(this);
+		decomptes(cp);
+		super.faire(cp);
+	}
+
+	@Override
+	public Coup annuler() {
+		Coup cp = super.annuler();
+		decomptes(cp);
+		return cp;
+	}
+
+	@Override
+	public Coup refaire() {
+		Coup cp = super.refaire();
+		decomptes(cp);
+		return cp;
+	}
+
 	public Coup elaboreCoup(int dLig, int dCol) {
 		int destL = pousseurL + dLig;
 		int destC = pousseurC + dCol;
@@ -140,36 +174,10 @@ public class Niveau implements Cloneable {
 		return null;
 	}
 
-	void appliqueMouvement(Mouvement m) {
-		if (m != null) {
-			int contenu = contenu(m.depuisL(), m.depuisC());
-			if (contenu != 0) {
-				if (estOccupable(m.versL(), m.versC())) {
-					supprime(contenu, m.depuisL(), m.depuisC());
-					ajoute(contenu, m.versL(), m.versC());
-				} else {
-					Configuration.alerte("Mouvement impossible, la destination est occupée : " + m);
-				}
-			} else {
-				Configuration.alerte("Mouvement impossible, aucun objet à déplacer : " + m);
-			}
-		}
-	}
-
-	void joue(Coup cp) {
-		appliqueMouvement(cp.caisse());
-		appliqueMouvement(cp.pousseur());
-		Iterateur<Marque> it2 = cp.marques().iterateur();
-		while (it2.aProchain()) {
-			Marque m = it2.prochain();
-			fixerMarque(m.valeur, m.ligne, m.colonne);
-		}
-	}
-
 	Coup deplace(int i, int j) {
 		Coup cp = elaboreCoup(i, j);
 		if (cp != null)
-			joue(cp);
+			faire(cp);
 		return cp;
 	}
 
@@ -264,6 +272,14 @@ public class Niveau implements Cloneable {
 
 	public void fixerMarque(int m, int i, int j) {
 		cases[i][j] = (cases[i][j] & 0xFF) | (m << 8);
+	}
+
+	public int nbPas() {
+		return nbPas;
+	}
+
+	public int nbPoussees() {
+		return nbPoussees;
 	}
 
 	public List<CoupleFAP> voisins(int u, int v) {

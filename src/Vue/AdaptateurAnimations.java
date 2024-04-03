@@ -1,3 +1,4 @@
+package Vue;
 /*
  * Sokoban - Encore une nouvelle version (à but pédagogique) du célèbre jeu
  * Copyright (C) 2018 Guillaume Huard
@@ -24,13 +25,19 @@
  *          Domaine universitaire
  *          38401 Saint Martin d'Hères
  */
-package Vue;
 
-public interface InterfaceUtilisateur {
-	void toggleFullscreen();
-	void changeEtatIA(boolean b);
-	void changeEtatAnimations(boolean b);
-	void changeEtape();
-	void metAJourDirection(int dL, int dC);
-	void decale(int versL, int versC, double dL, double dC);
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class AdaptateurAnimations implements ActionListener {
+	CollecteurEvenements control;
+
+	AdaptateurAnimations(CollecteurEvenements c) {
+		control = c;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		control.toucheClavier("Pause");
+	}
 }

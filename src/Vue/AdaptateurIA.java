@@ -1,3 +1,4 @@
+package Vue;
 /*
  * Sokoban - Encore une nouvelle version (à but pédagogique) du célèbre jeu
  * Copyright (C) 2018 Guillaume Huard
@@ -25,36 +26,18 @@
  *          38401 Saint Martin d'Hères
  */
 
-import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class TranslationPousseur implements ActionListener {
-	AireDeDessinSolution aire;
-	Point origine, destination;
-	double progres, vitesse = 0.1;
-	Timer timer;
+public class AdaptateurIA implements ActionListener {
+	CollecteurEvenements control;
 
-	TranslationPousseur(AireDeDessinSolution a, int x, int y) {
-		aire = a;
-		origine = aire.position();
-		destination = new Point(x, y);
-		progres = 0;
-		timer = new Timer(16, this);
-		timer.start();
+	AdaptateurIA(CollecteurEvenements c) {
+		control = c;
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		progres += vitesse;
-		if (progres > 1) {
-			progres = 1;
-			timer.stop();
-		}
-		int x = (int) Math.round(progres*destination.x + (1-progres)*origine.x);
-		int y = (int) Math.round(progres*destination.y + (1-progres)*origine.y);
-		aire.fixePosition(x, y);
-		aire.repaint();
+		control.toucheClavier("IA");
 	}
 }

@@ -46,12 +46,13 @@ public class Jeu extends Observable {
 	}
 
 	public void joue(Coup c) {
-		n.joue(c);
+		n.faire(c);
 		metAJour();
 	}
 
 	public void prochainNiveau() {
 		n = l.lisProchainNiveau();
+		metAJour();
 	}
 
 	public boolean niveauTermine() {
@@ -68,5 +69,25 @@ public class Jeu extends Observable {
 
 	public int colonnePousseur() {
 		return n.colonnePousseur();
+	}
+
+	public boolean peutAnnuler() {
+		return niveau().peutAnnuler();
+	}
+
+	public boolean peutRefaire() {
+		return niveau().peutRefaire();
+	}
+
+	public Coup annuler() {
+		Coup cp = n.annuler();
+		metAJour();
+		return cp;
+	}
+
+	public Coup refaire() {
+		Coup cp = n.refaire();
+		metAJour();
+		return cp;
 	}
 }
