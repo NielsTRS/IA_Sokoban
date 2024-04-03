@@ -44,7 +44,7 @@ class IAAssistance extends IA {
         if (caseOptimale == null) {
 			System.err.println("Pas de solution possible, au suivant.");
             /* System.exit(1); */
-			return null;
+            return null;
         }
 
 		Astar astar_pousseurCase = new Astar();
@@ -65,7 +65,7 @@ class IAAssistance extends IA {
         }
 
         while (!seq.estVide()) {
-            Coup coup = new Coup();
+            Coup coup;
             Case nouv = seq.extraitTete();
             coup = niveau.deplace(nouv.x, nouv.y);
             resultat.insereQueue(coup);
@@ -148,44 +148,19 @@ class IAAssistance extends IA {
         Case caseOptimale = null;
 		int pousseurL = niveau.lignePousseur();
         int pousseurC = niveau.colonnePousseur();
-        List<Case> casesLibres = new ArrayList<>();
-        List<Case> casesAccessibles = new ArrayList<>();
-        List<Case> casesPreSelection = new ArrayList<>();
-        List<Case> casesChoixPossibles = new ArrayList<>();
-
-        casesLibres = cases_libres_autour_caisse(caisse);
+        List<Case> casesLibres = cases_libres_autour_caisse(caisse);
 
         for (Case casePousseur : casesLibres) {
-            if (estAccessiblePousseur(niveau, casePousseur, pousseurL, pousseurC)) {
-                casesAccessibles.add(casePousseur);
+            if (estAccessiblePousseur(niveau, casePousseur, pousseurL, pousseurC) && est_case_opposee_libre(casePousseur, caisse) && ne_bloque_pas(casePousseur, caisse)) {
+                Astar astar_caseCaisse = new Astar();
+                Astar.AstarResult astar_case = astar_caseCaisse.astar(niveau, caseOpposee(casePousseur,caisse).x, caseOpposee(casePousseur,caisse).y, but.x, but.y);
+                int distance = astar_case.distance;
+
+                if (min >= distance) {
+                    min = distance;
+                    caseOptimale = casePousseur;
+                }
             }
-        }
-
-        for (Case casePousseur : casesAccessibles) {
-            if (est_case_opposee_libre(casePousseur, caisse)) {
-                casesPreSelection.add(casePousseur);
-            }
-        }
-
-        for (Case casePousseur : casesPreSelection) {
-            if (ne_bloque_pas(casePousseur, caisse)) {
-                casesChoixPossibles.add(casePousseur);
-            }
-        }
-
-        for (Case casePousseur : casesChoixPossibles) {
-            Astar astar_caseCaisse = new Astar();
-            Astar.AstarResult astar_case = astar_caseCaisse.astar(niveau, caseOpposee(casePousseur,caisse).x, caseOpposee(casePousseur,caisse).y, but.x, but.y);
-            int distance = astar_case.distance;
-
-            if (min >= distance) {
-				min = distance;
-                caseOptimale = casePousseur;
-            }
-        }
-
-        if (caseOptimale == null) {
-            return null;
         }
 
         return caseOptimale;
