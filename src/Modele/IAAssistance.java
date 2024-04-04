@@ -153,24 +153,33 @@ class IAAssistance extends IA {
         return niveau.estOccupable(caseOpposee.x, caseOpposee.y);
     }
 
-    public boolean ne_bloque_pas(Case casePousseur, Case caisse) {
+    public boolean ne_bloque_pas(Case casePousseur, Case caisse, Case but) {
         if (casePousseur.x == caisse.est().x && casePousseur.y == caisse.est().y) {
-            return !(niveau.aMur(caisse.ouest().ouest().x, caisse.ouest().ouest().y) &&
-                    (niveau.aMur(caisse.ouest().nord().x, caisse.ouest().nord().y) ||
-                            niveau.aMur(caisse.ouest().sud().x, caisse.ouest().sud().y)));
+            if (caisse.ouest().x != but.x || caisse.ouest().y != but.y) {
+                return !(niveau.aMur(caisse.ouest().ouest().x, caisse.ouest().ouest().y) &&
+                        (niveau.aMur(caisse.ouest().nord().x, caisse.ouest().nord().y) ||
+                                niveau.aMur(caisse.ouest().sud().x, caisse.ouest().sud().y)));
+            }
         } else if (casePousseur.x == caisse.ouest().x && casePousseur.y == caisse.ouest().y) {
-            return !(niveau.aMur(caisse.est().est().x, caisse.est().est().y) &&
-                    (niveau.aMur(caisse.est().nord().x, caisse.est().nord().y) ||
-                            niveau.aMur(caisse.est().sud().x, caisse.est().sud().y)));
+            if (caisse.est().x != but.x || caisse.est().y != but.y) {
+                return !(niveau.aMur(caisse.est().est().x, caisse.est().est().y) &&
+                        (niveau.aMur(caisse.est().nord().x, caisse.est().nord().y) ||
+                                niveau.aMur(caisse.est().sud().x, caisse.est().sud().y)));
+            }
         } else if (casePousseur.x == caisse.sud().x && casePousseur.y == caisse.sud().y) {
-            return !(niveau.aMur(caisse.nord().nord().x, caisse.nord().nord().y) &&
-                    (niveau.aMur(caisse.nord().ouest().x, caisse.nord().ouest().y) ||
-                            niveau.aMur(caisse.nord().est().x, caisse.nord().est().y)));
+            if (caisse.nord().x != but.x || caisse.nord().y != but.y) {    
+                return !(niveau.aMur(caisse.nord().nord().x, caisse.nord().nord().y) &&
+                        (niveau.aMur(caisse.nord().ouest().x, caisse.nord().ouest().y) ||
+                                niveau.aMur(caisse.nord().est().x, caisse.nord().est().y)));
+            }
         } else { //case = au nord de la caisse
-            return !(niveau.aMur(caisse.sud().sud().x, caisse.sud().sud().y) &&
-                    (niveau.aMur(caisse.sud().ouest().x, caisse.sud().ouest().y) ||
-                            niveau.aMur(caisse.sud().est().x, caisse.sud().est().y)));
+            if (caisse.sud().x != but.x || caisse.sud().y != but.y) {        
+                return !(niveau.aMur(caisse.sud().sud().x, caisse.sud().sud().y) &&
+                        (niveau.aMur(caisse.sud().ouest().x, caisse.sud().ouest().y) ||
+                                niveau.aMur(caisse.sud().est().x, caisse.sud().est().y)));
+            }
         }
+        return true;   
     }
 
     public Case Trouver_case_pousseur(Niveau niveau, Case caisse, Case but) {
@@ -181,7 +190,7 @@ class IAAssistance extends IA {
         List<Case> casesLibres = cases_libres_autour_caisse(caisse);
 
         for (Case casePousseur : casesLibres) {
-            if (estAccessiblePousseur(niveau, casePousseur, pousseurL, pousseurC) && est_case_opposee_libre(casePousseur, caisse) && ne_bloque_pas(casePousseur, caisse)) {
+            if (estAccessiblePousseur(niveau, casePousseur, pousseurL, pousseurC) && est_case_opposee_libre(casePousseur, caisse) && ne_bloque_pas(casePousseur, caisse, but)) {
                 Astar astar_caseCaisse = new Astar();
                 Astar.AstarResult astar_case = astar_caseCaisse.astar(niveau, caseOpposee(casePousseur, caisse).x, caseOpposee(casePousseur, caisse).y, but.x, but.y);
                 int distance = astar_case.distance;
